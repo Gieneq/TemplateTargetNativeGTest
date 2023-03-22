@@ -1,23 +1,23 @@
-# GTest native + ESP-IDF target 
-Template for setting up VS Code Platformio with ESP-IDF 5.0 for ESP32-S3 as target and Google Test as native for speeed up development.
+# 🧪 GTest native + ESP-IDF target using C++20
+Template for setting up VS Code Platformio with ESP-IDF 5.0 for ESP32-S3 target and Google Test native for speed up development. Are you fed up with waiting for completion of building-uploading time consumming process in embedded developments 🙄 You have some platform independent code which could be tested? Here's sometihng for you! 🥳
 
-## Just use template
+## 🔥 Just use the template  
 Siple way to setup environment. You can always change target MCU by modyfying [platformio.ini](platformio.ini) file. For example to target ESP32-C3 change env to:
 ```ini
 [env:esp32-c3-devkitm-1]
 platform = espressif32
 board = esp32-c3-devkitm-1
 ```
-Note that it will createsecond sdkconfig file in root/topmost folder.
+Note that it will create second sdkconfig file in root/topmost folder.
 
 ### 1. Clone repository
 Clone this repo and open in VS Code
 ```bash
-git clone 
+git clone https://github.com/Gieneq/TemplateTargetNativeGTest.git
 cd TemplateTargetNativeGTest
 ```
 ### 2. Ensure git path
-If for any reason environmental variable is not proper, simple add in topmost [CMakeLists.txt](CMakeLists.txt):
+If for any reason environmental variable is not proper, add in topmost [CMakeLists.txt](CMakeLists.txt):
 ```CMake
 cmake_minimum_required(VERSION 3.16.0)
 set(GIT_EXECUTABLE C:/.../Git/bin)
@@ -27,7 +27,7 @@ Git is required to download any dependencies.
 ## 3. Build and upload
 Thats it!
 
-## Setup from scratch
+## 🤔 Setup from scratch 
 Assuming you will develop custom components to be tested.
 
 ### 1. Create project
@@ -38,7 +38,7 @@ Create project in Platformio with ESP-IDF framework and select path to workspace
 </p>
 
 ### 2. Ensure git path
-If for any reason environmental variable is not proper, simple add in topmost [CMakeLists.txt](CMakeLists.txt):
+If for any reason environmental variable is not proper, add in topmost [CMakeLists.txt](CMakeLists.txt):
 ```CMake
 cmake_minimum_required(VERSION 3.16.0)
 set(GIT_EXECUTABLE C:/.../Git/bin)
@@ -58,7 +58,6 @@ build_type = release
 build_flags =
   -std=c++20
 
-
 [env:native]
 platform = native
 build_type = test
@@ -68,12 +67,12 @@ lib_deps =
   googletest@1.12.1
 ```
 
-Adding lib_deps (dependency) with trigger downloading Google Test framework. It will be placed in [libdeps](.pio/libdeps/native/googletest) folder. So if you will removing build files to force refreshing dependencies, delete only [build](.pio/build) subfolder.
+Adding lib_deps (dependency) will trigger downloading Google Test framework on first build. Files will be placed in .pio/libdeps/native/googletest folder. So if you will removing build files to force refreshing dependencies, delete only .pio/build subfolder.
 
 It would be more convenient to trigger unit testing before building final code, so you can build and run native using Platformio sidebar.
 
 ### 4. Add test code
-Place test entrance and additional source files in [test](test) folder. Test main should looks like this:
+Place test entrance and additional source files in [test](test) folder. Test main() should looks like this:
 ```cpp
 #include "gtest/gtest.h"
 #include "test_main.h"
@@ -123,6 +122,16 @@ version: 0.0.0
 ```
 For example above component requires ESP-IDF of minimal version 5.0 and led_strip component from [https://components.espressif.com](https://components.espressif.com/components/espressif/led_strip).
 
+Add path to components in [platformio.ini](platformio.ini) file:
+build_flags =
+  -std=c++20
+    -I./components/animations/include
+lib_deps =
+  googletest@1.12.1
+  ./components/animations
+
+Note that those components should not be dependant on ESP-IDF!
+
 ### 6. Build
 Build project using bottom platformio icon or sidebar native:
 
@@ -144,7 +153,7 @@ After "uploading" which means running on host machine you will be notified about
 ```
 
 ### 7. Add target code
-Inside [src](src) folder rename main.c to main.cpp, add extern "C" around main function and create rest of app. For eample:
+Inside [src](src) folder rename main.c to main.cpp, add extern "C" around main function and create rest of app. For example:
 ```cpp
 extern "C" {
 #include "freertos/FreeRTOS.h"
@@ -175,7 +184,7 @@ extern "C" {
     }
 }
 ```
-Inside CMakeLists.txt add all components:
+Inside CMakeLists.txt add all required components:
 ```CMake
 idf_component_register(SRCS ${app_sources} 
                        INCLUDE_DIRS "."
@@ -190,4 +199,17 @@ Environment         Status    Duration
 esp32-s3-devkitc-1  SUCCESS   00:02:02.333
 native              SUCCESS   00:00:22.551
 ```
+Note that there will be created: 
+- dependencies.lock
+- sdkconfig.esp32-s3-devkitc-1
+
 Now upload to target and observer results.
+
+## References
+- [IDF components manager](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/tools/idf-component-manager.html)
+- [Components registry](https://components.espressif.com/)
+- [Project structure](https://docs.platformio.org/en/stable/advanced/unit-testing/structure/hierarchy.html)
+- [Build system](https://docs.espressif.com/projects/esp-idf/en/latest/esp32/api-guides/build-system.html) 
+- [Adding sources in platformio.ini](https://community.platformio.org/t/how-to-add-source-directories-and-include-directories-for-libraries/21101)
+- [Stackoverflow - creating custom components](https://stackoverflow.com/questions/70011677/cmake-and-esp-idf-creating-custom-components)
+
