@@ -1,0 +1,6 @@
+name: animations
+dependencies:
+  idf:
+    version: '>=5.0'
+description: Animations controler
+version: 0.0.0
